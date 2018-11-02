@@ -1,0 +1,70 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  tasks:
+
+    - name: Enure the group "admin" exists
+      become: true
+      become_method: sudo
+      group:
+        name: "{{ item }}"
+        state: present
+      with_items:
+         - admins
+         - developers
+         - wheel  
+    - name: Allow 'wheel' group to have passwordless sudo
+      become: true
+      become_method: sudo 
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel sudo=/home/ubuntu'
+        validate: 'visudo -cf %s'
+
+    - include_vars: admins.yml
+    - include_vars: devs.yml  
+    - name: create the user
+      become: true
+      become_method: sudo 
+      command:  adduser --disabled-password --force-badname  --gecos "" "{{ item.name}}"
+      with_items: 
+        - "{{ admins }}"
+        - "{{ devs }}"  
+
+    - name:  create the authorized keys and  and append for the users
+      become: true
+      become_method: sudo 
+      authorized_key:
+        user: "{{ item.name }}"
+        state: present
+        key:  "{{item.pubkeys}}"
+      with_items: 
+        - "{{ admins }}"
+        - "{{ devs }}"   
+
+
+    - name: add the user  with bash shell and appending the group 'admin' and 'developer'
+      become: true
+      become_method: sudo
+      user:
+        name: "{{ item.name}}"
+        groups: admins,developers,sudo,wheel
+      with_items:  "{{ admins }}"  
+
+
+
+    - name: add the user  with bash shell and appending the group 'admin' and 'developer'
+      become: true
+      become_method: sudo
+      user:
+        name: "{{ item.name}}"
+        groups: developers
+      with_items: "{{ devs }}"
+
+
+
+
+
+

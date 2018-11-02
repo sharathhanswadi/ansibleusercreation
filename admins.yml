@@ -1,0 +1,6 @@
+admins:
+  - {  name: "prashant.srivastav", pubkeys: ""   } 
+  - {  name: "rohit.kumar", pubkeys: ""   }
+  - {  name: "rohit.roy", pubkeys: ""   }
+  - {  name: "abin.mathew", pubkeys: ""   }
+  - {  name: "anuj.kumar", pubkeys: ""   }
